@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {subclass} from "./config";
 
-
+/**
+ * Given a point and a polygon.
+ * Return whether this point is inside the polygon using Ray casting algorithm.
+ */
 const isPointInPolygon = (point, polygon) => {
     const [px, py] = point;
     let inside = false;
@@ -22,6 +25,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
     const canvasRef = useRef(null);
     const [currentPart, setCurrentPart] = useState(null);
     const [selectedPart, setSelectedPart] = useState(null);
+    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
     const handleMouseMove = (e) => {
         const canvas = canvasRef.current;
@@ -36,10 +40,26 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         setCurrentPart(part);
     };
 
+    /**
+     * Click to select one part.
+     * Right click to unselect that part.
+     */
     const handleClick = (e) => {
-        if (currentPart) {
-            setSelectedPart(currentPart);
-            // console.log(`Select ${currentPart.name}`)
+        if (e.type === 'click') {
+            const canvas = canvasRef.current;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            setCursorPosition({ x: mouseX, y: mouseY });
+
+            if (currentPart) {
+                setSelectedPart(currentPart);
+                // console.log(`Select ${currentPart.name}`)
+            }
+        }
+        else if (e.type === 'contextmenu') {
+            e.preventDefault();
+            setSelectedPart(null);
         }
     };
 
@@ -78,7 +98,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
             ctx.fill();
 
             ctx.font = '24px Arial'
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = 'green';
             // Calculate the middle of the image
             const middleX = canvas.width / 2;
             const middleY = canvas.height / 2;
@@ -86,30 +106,32 @@ const ImageOverlay = ({ imageUrl, parts }) => {
             // Calculate the width of the text and center it
             const textWidth = ctx.measureText(name).width;
             const textX = middleX - textWidth / 2;
+            const textY = canvas.height - 5;
 
             // Render the text in the middle of the image
-            ctx.fillText(name, textX, middleY);
+            ctx.fillText(name, textX, textY);
         }
     }, [imageUrl, currentPart]);
 
     return (
-        <div>
-            <canvas ref={canvasRef} onMouseMove={handleMouseMove} onClick={handleClick}/>
+        <div onContextMenu={handleClick}>
+            <canvas ref={canvasRef} onMouseMove={handleMouseMove} onClick={handleClick} />
             {selectedPart && (
                 <div
                     style={{
                         position: 'absolute',
-                        top: `${canvasRef.current.getBoundingClientRect().top + window.scrollY}px`,
-                        left: `${canvasRef.current.getBoundingClientRect().left + window.scrollX}px`,
+                        top: `${cursorPosition.y}px`,
+                        left: `${cursorPosition.x}px`,
                         background: 'rgba(255, 255, 255, 0.8)',
                         padding: '10px',
+                        lineHeight: '5px',
                         borderRadius: '5px',
                         border: '1px solid black',
                     }}
                 >
                     Subclass of {selectedPart.name}: {
-                        subclass[selectedPart.name].map(i => {
-                            return <p>{i}</p>;
+                        subclass[selectedPart.name].map(subclassName => {
+                            return <p>{subclassName}</p>;
                         })
                     }
                 </div>
