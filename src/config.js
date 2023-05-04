@@ -11,10 +11,12 @@ export const parts = [
 ];
 
 export const subclass = {
-    "Grasper": ["Grasper1", "Grasper2", "Grasper3"],
-    "Gallbladder": ["Gallbladder1", "Gallbladder2", "Gallbladder3"],
-    "Intestine": ["Intestine1", "Intestine2", "Intestine3"],
-    "Fat": ["Fat1", "Fat2", "Fat3"],
-    "Liver": ["Liver1", "Liver2", "Liver3"],
-    "Abdominal Wall": ["Abdominal Wall1", "Abdominal Wall2", "Abdominal Wall3"],
+    "Abdominal Wall": [],
+    "Background": [],
+    "Blood": [],
+    "Fat": ["Omentum", "Duodenum"],
+    "Gallbladder": ["Gallbladder", "Connected Tissue", "Cystic Duct", "Cystic Artery", "Common Bile Duct", "Hepatic duct"],
+    "Grasper": ["Grasper", "L-Hook", "Marylin", "Clip", "Retrieval Bag"],
+    "Intestine": ["Duodenum", "GT Intestine"],
+    "Liver": ["Hepatic", "Hepatic Ligament"],
 }
