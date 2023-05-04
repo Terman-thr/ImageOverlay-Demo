@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import {subclass} from "./config";
+
 
 const isPointInPolygon = (point, polygon) => {
     const [px, py] = point;
@@ -19,6 +21,7 @@ const isPointInPolygon = (point, polygon) => {
 const ImageOverlay = ({ imageUrl, parts }) => {
     const canvasRef = useRef(null);
     const [currentPart, setCurrentPart] = useState(null);
+    const [selectedPart, setSelectedPart] = useState(null);
 
     const handleMouseMove = (e) => {
         const canvas = canvasRef.current;
@@ -31,6 +34,13 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         });
 
         setCurrentPart(part);
+    };
+
+    const handleClick = (e) => {
+        if (currentPart) {
+            setSelectedPart(currentPart);
+            // console.log(`Select ${currentPart.name}`)
+        }
     };
 
     useEffect(() => {
@@ -58,7 +68,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         if (currentPart) {
             const { name, polygon } = currentPart;
 
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
             ctx.beginPath();
             ctx.moveTo(polygon[0][0], polygon[0][1]);
             for (let i = 1; i < polygon.length; i++) {
@@ -84,7 +94,26 @@ const ImageOverlay = ({ imageUrl, parts }) => {
 
     return (
         <div>
-            <canvas ref={canvasRef} onMouseMove={handleMouseMove} />
+            <canvas ref={canvasRef} onMouseMove={handleMouseMove} onClick={handleClick}/>
+            {selectedPart && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: `${canvasRef.current.getBoundingClientRect().top + window.scrollY}px`,
+                        left: `${canvasRef.current.getBoundingClientRect().left + window.scrollX}px`,
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        border: '1px solid black',
+                    }}
+                >
+                    Subclass of {selectedPart.name}: {
+                        subclass[selectedPart.name].map(i => {
+                            return <p>{i}</p>;
+                        })
+                    }
+                </div>
+            )}
         </div>
     );
 };
