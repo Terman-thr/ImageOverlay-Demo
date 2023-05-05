@@ -32,7 +32,9 @@ const ImageOverlay = ({ imageUrl, parts }) => {
     const [selectedAction, setSelectedAction] = useState(null);  // which action is selected in drop-down menu
 
     const [hoveredLabelIndex, setHoveredLabelIndex] = useState(null);
-    const [clickedLabelIndex, setClickedLabelIndex] = useState(null);
+    const [selectedLabelIndex, setSelectedLabelIndex] = useState(null);
+
+    const [initialText, setInitialText] = useState(null);  // Used for cancel button in input field to discard changes.
 
     const handleMouseMove = (e) => {
         const canvas = canvasRef.current;
@@ -117,8 +119,26 @@ const ImageOverlay = ({ imageUrl, parts }) => {
     };
 
     const handleLabelClick = (index) => {
-        setClickedLabelIndex(index);
+        setSelectedLabelIndex(index);
+        setInitialText(labels[index].text)
     };
+
+    const handleLabelTextUpdate = (e) => {
+        const updatedLabels = [...labels];
+        updatedLabels[selectedLabelIndex].text = e.target.value;
+        setLabels(updatedLabels);
+    }
+
+    const handleLabelTextChangeConfirm = () => {
+        setSelectedLabelIndex(null);
+    }
+
+    const handleLabelTextChangeCancel = () => {
+        const updatedLabels = [...labels];
+        updatedLabels[selectedLabelIndex].text = initialText;
+        setLabels(updatedLabels);
+        setSelectedLabelIndex(null);
+    }
 
     // Draw image on canvas.
     useEffect(() => {
@@ -253,7 +273,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                         >
                             {index + 1}
                         </div>
-                        {(hoveredLabelIndex === index || clickedLabelIndex === index) && (
+                        {(hoveredLabelIndex === index) && (
                             <div
                                 style={{
                                     background: 'rgba(255, 255, 255, 0.8)',
@@ -269,7 +289,16 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                     </div>
                 ))}
             </div>
-
+            {selectedLabelIndex != null && (
+                <div>
+                    <h3>Customize Text</h3>
+                    <label>Text:</label>
+                    <input type="text" name="text" value={labels[selectedLabelIndex].text} onChange={handleLabelTextUpdate}/>
+                    <br />
+                    <button onClick={handleLabelTextChangeConfirm}>Confirm</button>
+                    <button onClick={handleLabelTextChangeCancel}>Cancel</button>
+                </div>
+            )}
         </div>
     );
 };
