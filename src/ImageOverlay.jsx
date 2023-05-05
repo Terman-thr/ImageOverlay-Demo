@@ -27,6 +27,10 @@ const ImageOverlay = ({ imageUrl, parts }) => {
     const [selectedPart, setSelectedPart] = useState(null);
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
+    const [labels, setLabels] = useState([]);  // Labels that selected and set by users.
+    const [selectedSubclass, setSelectedSubclass] = useState(null);  // which subclass is selected in drop-down menu
+    const [selectedAction, setSelectedAction] = useState(null);  // which action is selected in drop-down menu
+
     const handleMouseMove = (e) => {
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
@@ -63,6 +67,44 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         }
     };
 
+    // Detect subclass change in drop-down menu
+    const handleSubclassChange = (e) => {
+        setSelectedSubclass(e.target.value);
+    };
+
+    // Detect action change in drop-down menu
+    const handleActionChange = (e) => {
+        setSelectedAction(e.target.value);
+    }
+
+    /**
+     * If there is subclass or action selected and confirm button is clicked,
+     * Add a label to the position the same with menu, and push info of the new
+     * label to ${labels} state.
+     */
+    const handleConfirmClick = () => {
+        if (selectedPart && (selectedSubclass || selectedAction)) {
+            const newLabel = {
+                part: selectedPart.name,
+                subclass: selectedSubclass,
+                action: selectedAction,
+                position: cursorPosition,
+            };
+            labels.push(newLabel);
+            setSelectedPart(null);
+            setSelectedAction(null);
+            setSelectedSubclass(null);
+        }
+    }
+
+    // Cancel selection of label
+    const handleCancelClick = () => {
+        setSelectedPart(null);
+        setSelectedAction(null);
+        setSelectedSubclass(null);
+    };
+
+    // Draw image on canvas.
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -76,6 +118,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         };
     }, [imageUrl]);
 
+    // Generate mask and text for current part.
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -131,7 +174,8 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                 >
                     <b>{selectedPart.name}</b>&nbsp;
                     {metaclass[selectedPart.name].subclass.length > 0 ? (
-                        <select>
+                        <select onChange={handleSubclassChange}>
+                            <option value="">Select a subclass</option>
                             {
                                 metaclass[selectedPart.name].subclass.map(subclassName => {
                                     return <option value={subclassName}>{subclassName}</option>;
@@ -143,10 +187,11 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                     )}
 
                     {metaclass[selectedPart.name].action.length > 0 ? (
-                        <select>
+                        <select onChange={handleActionChange}>
+                            <option value="">Select an action</option>
                             {
-                                metaclass[selectedPart.name].action.map(subclassName => {
-                                    return <option value={subclassName}>{subclassName}</option>;
+                                metaclass[selectedPart.name].action.map(action => {
+                                    return <option value={action}>{action}</option>;
                                 })
                             }
                         </select>
@@ -154,8 +199,30 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                         <div></div>
                     )
                     }
+                    <br></br>
+                    {metaclass[selectedPart.name].subclass.length > 0 || metaclass[selectedPart.name].action.length > 0 ? (
+                        <>
+                        <button onClick={handleConfirmClick}>Confirm</button>
+                        <button onClick={handleCancelClick}>Cancel</button>
+                        </>
+                    ) : (
+                        <div></div>
+                    )}
                 </div>
             )}
+            {labels.map((label, index) => (
+                <div
+                key={index}
+                style={{
+                    position: 'absolute',
+                    top: `${label.position.y}px`,
+                    left: `${label.position.x}px`,
+                }}
+                >
+                    {label.part} {label.subclass} {label.action}
+                </div>
+            ))}
+
         </div>
     );
 };
