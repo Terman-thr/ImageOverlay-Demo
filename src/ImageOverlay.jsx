@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {subclass} from "./config";
+import {subclass, metaclass} from "./config";
 
 /**
  * Given a point and a polygon.
@@ -129,10 +129,30 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                         border: '1px solid black',
                     }}
                 >
-                    Subclass of {selectedPart.name}: {
-                        subclass[selectedPart.name].map(subclassName => {
-                            return <p>{subclassName}</p>;
-                        })
+                    <b>{selectedPart.name}</b>&nbsp;
+                    {metaclass[selectedPart.name].subclass.length > 0 ? (
+                        <select>
+                            {
+                                metaclass[selectedPart.name].subclass.map(subclassName => {
+                                    return <option value={subclassName}>{subclassName}</option>;
+                                })
+                            }
+                        </select>
+                    ) : (
+                        <div></div>
+                    )}
+
+                    {metaclass[selectedPart.name].action.length > 0 ? (
+                        <select>
+                            {
+                                metaclass[selectedPart.name].action.map(subclassName => {
+                                    return <option value={subclassName}>{subclassName}</option>;
+                                })
+                            }
+                        </select>
+                    ) : (
+                        <div></div>
+                    )
                     }
                 </div>
             )}
