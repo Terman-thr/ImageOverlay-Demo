@@ -31,6 +31,9 @@ const ImageOverlay = ({ imageUrl, parts }) => {
     const [selectedSubclass, setSelectedSubclass] = useState(null);  // which subclass is selected in drop-down menu
     const [selectedAction, setSelectedAction] = useState(null);  // which action is selected in drop-down menu
 
+    const [hoveredLabelIndex, setHoveredLabelIndex] = useState(null);
+    const [clickedLabelIndex, setClickedLabelIndex] = useState(null);
+
     const handleMouseMove = (e) => {
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
@@ -88,6 +91,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                 part: selectedPart.name,
                 subclass: selectedSubclass,
                 action: selectedAction,
+                text: `${selectedPart.name}: ${selectedSubclass} ${selectedAction}`,
                 position: cursorPosition,
             };
             labels.push(newLabel);
@@ -102,6 +106,18 @@ const ImageOverlay = ({ imageUrl, parts }) => {
         setSelectedPart(null);
         setSelectedAction(null);
         setSelectedSubclass(null);
+    };
+
+    const handleLabelMouseEnter = (index) => {
+        setHoveredLabelIndex(index);
+    };
+
+    const handleLabelMouseLeave = () => {
+        setHoveredLabelIndex(null);
+    };
+
+    const handleLabelClick = (index) => {
+        setClickedLabelIndex(index);
     };
 
     // Draw image on canvas.
@@ -210,18 +226,49 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                     )}
                 </div>
             )}
-            {labels.map((label, index) => (
-                <div
-                key={index}
-                style={{
-                    position: 'absolute',
-                    top: `${label.position.y}px`,
-                    left: `${label.position.x}px`,
-                }}
-                >
-                    {label.part} {label.subclass} {label.action}
-                </div>
-            ))}
+            <div>
+                {labels.map((label, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            position: 'absolute',
+                            left: `${label.position.x}px`,
+                            top: `${label.position.y}px`,
+                        }}
+                        onMouseEnter={() => handleLabelMouseEnter(index)}
+                        onMouseLeave={handleLabelMouseLeave}
+                        onClick={() => handleLabelClick(index)}
+                    >
+                        <div
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '50%',
+                                backgroundColor: 'red',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: 'white',
+                            }}
+                        >
+                            {index + 1}
+                        </div>
+                        {(hoveredLabelIndex === index || clickedLabelIndex === index) && (
+                            <div
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.8)',
+                                    padding: '5px',
+                                    borderRadius: '5px',
+                                    border: '1px solid black',
+                                    marginLeft: '25px',
+                                }}
+                            >
+                                {label.text}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
 
         </div>
     );
