@@ -93,7 +93,7 @@ const ImageOverlay = ({ imageUrl, parts }) => {
                 part: selectedPart.name,
                 subclass: selectedSubclass,
                 action: selectedAction,
-                text: `${selectedPart.name}: ${selectedSubclass} ${selectedAction}`,
+                text: `${selectedPart.name}${selectedSubclass ? `: ${selectedSubclass}` : ''}${selectedAction ? ` ${selectedAction}` : ''}`,
                 position: cursorPosition,
             };
             labels.push(newLabel);
